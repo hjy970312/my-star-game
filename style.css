@@ -81,6 +81,7 @@ body {
     outline: none;
     margin-bottom: 10px;
     -webkit-appearance: none; /* 移除 iOS 默认内阴影 */
+    appearance: none;         /* 标准属性 */
 }
 
 #nickname-input:focus {
