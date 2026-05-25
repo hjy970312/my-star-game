@@ -7,7 +7,7 @@ body {
     justify-content: center;
     align-items: center;
     background-color: #fdf0d5; /* 奶油黄背景 */
-    font-family: 'Press Start 2P', cursive;
+    font-family: 'Press Start 2P', 'Courier New', Courier, monospace;
     color: #5e548e; /* 深紫色文字 */
     overflow: hidden;
     image-rendering: pixelated;
@@ -145,7 +145,7 @@ canvas {
     border-radius: 12px;
     color: #6a4c93;
     cursor: pointer;
-    font-family: 'Press Start 2P', cursive;
+    font-family: 'Press Start 2P', 'Courier New', Courier, monospace;
     box-shadow: 4px 4px 0 #e0b1cb;
     transition: all 0.1s;
 }
@@ -171,7 +171,7 @@ canvas {
     font-size: 12px;
     text-align: center;
     outline: none;
-    font-family: 'Press Start 2P', cursive;
+    font-family: 'Press Start 2P', 'Courier New', Courier, monospace;
 }
 
 .modal-content {
@@ -201,7 +201,7 @@ canvas {
     padding: 6px 10px;
     cursor: pointer;
     font-size: 7px;
-    font-family: 'Press Start 2P', cursive;
+    font-family: 'Press Start 2P', 'Courier New', Courier, monospace;
 }
 
 .tab-btn.active {
