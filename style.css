@@ -33,6 +33,53 @@ body {
     pointer-events: none;
 }
 
+#user-info {
+    margin-bottom: 25px;
+    background: rgba(255, 255, 255, 0.1);
+    padding: 8px 15px;
+    border-radius: 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+#player-name-display {
+    font-size: 14px;
+    color: #f9d71c;
+    font-weight: bold;
+}
+
+.icon-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 16px;
+    padding: 0;
+    transition: transform 0.2s;
+}
+
+.icon-btn:hover {
+    transform: scale(1.2);
+}
+
+#nickname-input {
+    width: 100%;
+    padding: 12px;
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: 8px;
+    color: white;
+    font-size: 18px;
+    text-align: center;
+    outline: none;
+}
+
+#nickname-input:focus {
+    border-color: #e94560;
+    background: rgba(255, 255, 255, 0.15);
+}
+
 #score-container, #level, #lives {
     background: rgba(255, 255, 255, 0.1);
     backdrop-filter: blur(10px);

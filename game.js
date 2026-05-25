@@ -17,6 +17,13 @@ const viewLeaderboardBtn = document.getElementById('view-leaderboard-btn');
 const closeLeaderboardBtn = document.getElementById('close-leaderboard-btn');
 const tabButtons = document.querySelectorAll('.tab-btn');
 
+// 昵称系统相关
+const nameModal = document.getElementById('name-modal');
+const nicknameInput = document.getElementById('nickname-input');
+const saveNameBtn = document.getElementById('save-name-btn');
+const editNameBtn = document.getElementById('edit-name-btn');
+const playerNameDisplay = document.getElementById('player-name-display');
+
 // Supabase 初始化
 const SUPABASE_URL = 'https://sorpglfmkavzbhnnfvzm.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_5KKVuBr3V0OV6DT8fqexx'; // 这里使用了你提供的 Key
@@ -30,6 +37,7 @@ let leaderboardData = JSON.parse(localStorage.getItem('starGameLeaderboardV2')) 
     flower: [],
     fruit: []
 };
+let playerName = localStorage.getItem('starGamePlayerName') || '';
 let level = 1;
 let lives = 3;
 let gameOver = true; // 初始设为 true，等待模式选择
@@ -451,7 +459,7 @@ async function saveScore(newScore, mode) {
                 .insert([{ 
                     score: newScore, 
                     mode: mode,
-                    name: '玩家' + Math.floor(Math.random() * 1000) // 临时随机名
+                    name: playerName || '匿名玩家'
                 }]);
             if (error) console.error('Supabase save error:', error);
         } catch (e) {
@@ -500,13 +508,48 @@ async function updateLeaderboardUI(targetList, mode) {
             const modeLabel = modeConfigs[entry.mode].label;
             li.innerHTML = `
                 <span class="score-rank">#${index + 1}</span>
+                <span class="score-name" style="flex:1; margin-left:10px; font-size:14px; opacity:0.8;">${entry.name || '匿名'}</span>
                 <span class="score-mode">${modeLabel}</span>
-                <span class="score-val">${entry.score}</span>
+                <span class="score-val" style="margin-left:10px;">${entry.score}</span>
             `;
             targetList.appendChild(li);
         });
     }
 }
+
+// 昵称系统逻辑
+function updateNameDisplay() {
+    if (playerName) {
+        playerNameDisplay.textContent = `玩家昵称: ${playerName}`;
+    } else {
+        playerNameDisplay.textContent = `玩家昵称: 未设置`;
+    }
+}
+
+function showNameModal() {
+    nicknameInput.value = playerName;
+    nameModal.classList.remove('hidden');
+}
+
+saveNameBtn.addEventListener('click', () => {
+    const newName = nicknameInput.value.trim();
+    if (newName) {
+        playerName = newName;
+        localStorage.setItem('starGamePlayerName', playerName);
+        updateNameDisplay();
+        nameModal.classList.add('hidden');
+    } else {
+        alert('请输入一个有效的昵称哦！');
+    }
+});
+
+editNameBtn.addEventListener('click', showNameModal);
+
+// 初始化时检查是否设置了名字
+if (!playerName) {
+    setTimeout(showNameModal, 500);
+}
+updateNameDisplay();
 
 // 主页排行榜交互
 viewLeaderboardBtn.addEventListener('click', () => {

@@ -19,11 +19,23 @@
         <canvas id="gameCanvas"></canvas>
         <div id="mode-overlay" class="overlay">
             <h1>选择游戏模式</h1>
+            <div id="user-info">
+                <span id="player-name-display">玩家昵称: 未设置</span>
+                <button id="edit-name-btn" class="icon-btn">✏️</button>
+            </div>
             <div class="mode-buttons">
                 <button class="mode-btn" data-mode="star">⭐ 经典星星局</button>
                 <button class="mode-btn" data-mode="flower">🌸 鲜花局</button>
                 <button class="mode-btn" data-mode="fruit">🍎 水果局</button>
                 <button id="view-leaderboard-btn" class="secondary-btn">🏆 查看排行榜</button>
+            </div>
+        </div>
+        <!-- 昵称设置弹窗 -->
+        <div id="name-modal" class="overlay hidden">
+            <div class="modal-content">
+                <h2>设置你的昵称</h2>
+                <input type="text" id="nickname-input" placeholder="输入你的大名..." maxlength="10">
+                <button id="save-name-btn" class="mode-btn" style="margin-top: 20px;">确定</button>
             </div>
         </div>
         <!-- 主页排行榜弹窗 -->
