@@ -15,16 +15,22 @@ const leaderboardModal = document.getElementById('leaderboard-modal');
 const mainScoreListElement = document.getElementById('main-score-list');
 const viewLeaderboardBtn = document.getElementById('view-leaderboard-btn');
 const closeLeaderboardBtn = document.getElementById('close-leaderboard-btn');
+const tabButtons = document.querySelectorAll('.tab-btn');
 
 // 游戏状态
 let score = 0;
 let highScore = localStorage.getItem('starGameHighScore') || 0;
-let leaderboardData = JSON.parse(localStorage.getItem('starGameLeaderboard')) || [];
+let leaderboardData = JSON.parse(localStorage.getItem('starGameLeaderboardV2')) || {
+    star: [],
+    flower: [],
+    fruit: []
+};
 let level = 1;
 let lives = 3;
 let gameOver = true; // 初始设为 true，等待模式选择
 let animationId;
 let currentGameMode = 'star';
+let currentTab = 'star'; // 排行榜当前选中的标签
 
 // 模式配置
 const modeConfigs = {
@@ -414,7 +420,7 @@ function endGame() {
     finalScoreElement.textContent = `最终得分: ${score}`;
     
     saveScore(score, currentGameMode);
-    updateLeaderboardUI();
+    updateLeaderboardUI(scoreListElement, currentGameMode);
 }
 
 function saveScore(newScore, mode) {
@@ -426,46 +432,61 @@ function saveScore(newScore, mode) {
         date: new Date().toLocaleDateString()
     };
     
-    leaderboardData.push(entry);
-    // 按分数从高到低排序
-    leaderboardData.sort((a, b) => b.score - a.score);
-    // 只保留前 5 名
-    leaderboardData = leaderboardData.slice(0, 5);
+    // 确保数据结构正确
+    if (!leaderboardData[mode]) leaderboardData[mode] = [];
     
-    localStorage.setItem('starGameLeaderboard', JSON.stringify(leaderboardData));
+    leaderboardData[mode].push(entry);
+    // 按分数从高到低排序
+    leaderboardData[mode].sort((a, b) => b.score - a.score);
+    // 只保留前 5 名
+    leaderboardData[mode] = leaderboardData[mode].slice(0, 5);
+    
+    localStorage.setItem('starGameLeaderboardV2', JSON.stringify(leaderboardData));
 }
 
-function updateLeaderboardUI() {
-    // 统一更新两个列表
-    const lists = [scoreListElement, mainScoreListElement];
+function updateLeaderboardUI(targetList, mode) {
+    if (!targetList) return;
+    targetList.innerHTML = '';
     
-    lists.forEach(list => {
-        if (!list) return;
-        list.innerHTML = '';
-        
-        if (leaderboardData.length === 0) {
-            list.innerHTML = '<li class="score-item" style="justify-content:center; opacity:0.5;">暂无记录</li>';
-        } else {
-            leaderboardData.forEach((entry, index) => {
-                const li = document.createElement('li');
-                li.className = 'score-item';
-                const modeLabel = modeConfigs[entry.mode].label;
-                li.innerHTML = `
-                    <span class="score-rank">#${index + 1}</span>
-                    <span class="score-mode">${modeLabel}</span>
-                    <span class="score-val">${entry.score}</span>
-                `;
-                list.appendChild(li);
-            });
-        }
-    });
+    const data = leaderboardData[mode] || [];
+    
+    if (data.length === 0) {
+        targetList.innerHTML = '<li class="score-item" style="justify-content:center; opacity:0.5;">暂无记录</li>';
+    } else {
+        data.forEach((entry, index) => {
+            const li = document.createElement('li');
+            li.className = 'score-item';
+            const modeLabel = modeConfigs[entry.mode].label;
+            li.innerHTML = `
+                <span class="score-rank">#${index + 1}</span>
+                <span class="score-mode">${modeLabel}</span>
+                <span class="score-val">${entry.score}</span>
+            `;
+            targetList.appendChild(li);
+        });
+    }
 }
 
 // 主页排行榜交互
 viewLeaderboardBtn.addEventListener('click', () => {
-    updateLeaderboardUI();
+    currentTab = currentGameMode; // 默认打开当前模式的榜单
+    updateTabUI();
     leaderboardModal.classList.remove('hidden');
 });
+
+tabButtons.forEach(btn => {
+    btn.addEventListener('click', () => {
+        currentTab = btn.dataset.tab;
+        updateTabUI();
+    });
+});
+
+function updateTabUI() {
+    tabButtons.forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.tab === currentTab);
+    });
+    updateLeaderboardUI(mainScoreListElement, currentTab);
+}
 
 closeLeaderboardBtn.addEventListener('click', () => {
     leaderboardModal.classList.add('hidden');

@@ -175,7 +175,31 @@ canvas {
 
 #main-leaderboard-content {
     width: 100%;
-    margin: 20px 0;
+    margin: 10px 0 20px 0;
+}
+
+.leaderboard-tabs {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 10px;
+}
+
+.tab-btn {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: white;
+    padding: 5px 12px;
+    border-radius: 20px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: all 0.2s;
+}
+
+.tab-btn.active {
+    background: #f9d71c;
+    color: #000;
+    border-color: #f9d71c;
+    font-weight: bold;
 }
 
 #overlay h1 {
