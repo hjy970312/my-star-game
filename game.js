@@ -10,10 +10,12 @@ const finalScoreElement = document.getElementById('final-score');
 const restartBtn = document.getElementById('restart-btn');
 const modeOverlay = document.getElementById('mode-overlay');
 const modeButtons = document.querySelectorAll('.mode-btn');
+const scoreListElement = document.getElementById('score-list');
 
 // 游戏状态
 let score = 0;
 let highScore = localStorage.getItem('starGameHighScore') || 0;
+let leaderboardData = JSON.parse(localStorage.getItem('starGameLeaderboard')) || [];
 let level = 1;
 let lives = 3;
 let gameOver = true; // 初始设为 true，等待模式选择
@@ -406,6 +408,50 @@ function endGame() {
     cancelAnimationFrame(animationId);
     overlay.classList.remove('hidden');
     finalScoreElement.textContent = `最终得分: ${score}`;
+    
+    saveScore(score, currentGameMode);
+    updateLeaderboardUI();
+}
+
+function saveScore(newScore, mode) {
+    if (newScore <= 0) return;
+    
+    const entry = {
+        score: newScore,
+        mode: mode,
+        date: new Date().toLocaleDateString()
+    };
+    
+    leaderboardData.push(entry);
+    // 按分数从高到低排序
+    leaderboardData.sort((a, b) => b.score - a.score);
+    // 只保留前 5 名
+    leaderboardData = leaderboardData.slice(0, 5);
+    
+    localStorage.setItem('starGameLeaderboard', JSON.stringify(leaderboardData));
+}
+
+function updateLeaderboardUI() {
+    scoreListElement.innerHTML = '';
+    
+    if (leaderboardData.length === 0) {
+        scoreListElement.innerHTML = '<li class="score-item" style="justify-content:center; opacity:0.5;">暂无记录</li>';
+        return;
+    }
+
+    leaderboardData.forEach((entry, index) => {
+        const li = document.createElement('li');
+        li.className = 'score-item';
+        
+        const modeLabel = modeConfigs[entry.mode].label;
+        
+        li.innerHTML = `
+            <span class="score-rank">#${index + 1}</span>
+            <span class="score-mode">${modeLabel}</span>
+            <span class="score-val">${entry.score}</span>
+        `;
+        scoreListElement.appendChild(li);
+    });
 }
 
 function restartGame() {
