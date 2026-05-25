@@ -55,19 +55,24 @@ const editNameBtn = document.getElementById('edit-name-btn');
 const playerNameDisplay = document.getElementById('player-name-display');
 const userInfoArea = document.getElementById('user-info');
 
-// Supabase 初始化 (使用更安全的变量名避免冲突)
+// Supabase 初始化
 const SUPABASE_URL = 'https://sorpglfmkavzbhnnfvzm.supabase.co';
-const SUPABASE_KEY = 'sb_publishable_5KKVuBr3V0OV6DT8fqex'; 
+// 终于拿到了完整的 Key！
+const SUPABASE_KEY = 'sb_publishable_5KKVuBr3V00V6DT8fqegWg_YBLFRoj1'; 
 let supabaseClient = null;
 
-try {
-    if (window.supabase) {
-        supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-        console.log("Supabase Client initialized.");
+function initSupabase() {
+    try {
+        if (window.supabase && SUPABASE_KEY !== 'YOUR_FULL_ANON_KEY_HERE') {
+            supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+            console.log("Supabase Client initialized.");
+        }
+    } catch (e) {
+        console.warn("Supabase initialization error:", e);
     }
-} catch (e) {
-    console.warn("Supabase initialization error:", e);
 }
+
+initSupabase();
 
 // --- 3. 数据初始化 ---
 let highScore = localStorage.getItem('starGameHighScore') || 0;
