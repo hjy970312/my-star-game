@@ -17,6 +17,11 @@ const viewLeaderboardBtn = document.getElementById('view-leaderboard-btn');
 const closeLeaderboardBtn = document.getElementById('close-leaderboard-btn');
 const tabButtons = document.querySelectorAll('.tab-btn');
 
+// Supabase 初始化
+const SUPABASE_URL = 'https://sorpglfmkavzbhnnfvzm.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_5KKVuBr3V0OV6DT8fqexx'; // 这里使用了你提供的 Key
+const supabase = window.supabase ? window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY) : null;
+
 // 游戏状态
 let score = 0;
 let highScore = localStorage.getItem('starGameHighScore') || 0;
@@ -423,37 +428,73 @@ function endGame() {
     updateLeaderboardUI(scoreListElement, currentGameMode);
 }
 
-function saveScore(newScore, mode) {
+async function saveScore(newScore, mode) {
     if (newScore <= 0) return;
     
+    // 1. 本地备份存储 (保持旧逻辑作为兜底)
     const entry = {
         score: newScore,
         mode: mode,
         date: new Date().toLocaleDateString()
     };
-    
-    // 确保数据结构正确
     if (!leaderboardData[mode]) leaderboardData[mode] = [];
-    
     leaderboardData[mode].push(entry);
-    // 按分数从高到低排序
     leaderboardData[mode].sort((a, b) => b.score - a.score);
-    // 只保留前 5 名
     leaderboardData[mode] = leaderboardData[mode].slice(0, 5);
-    
     localStorage.setItem('starGameLeaderboardV2', JSON.stringify(leaderboardData));
+
+    // 2. 云端 Supabase 存储
+    if (supabase) {
+        try {
+            const { error } = await supabase
+                .from('leaderboard')
+                .insert([{ 
+                    score: newScore, 
+                    mode: mode,
+                    name: '玩家' + Math.floor(Math.random() * 1000) // 临时随机名
+                }]);
+            if (error) console.error('Supabase save error:', error);
+        } catch (e) {
+            console.error('Cloud save failed:', e);
+        }
+    }
 }
 
-function updateLeaderboardUI(targetList, mode) {
+async function updateLeaderboardUI(targetList, mode) {
     if (!targetList) return;
+    targetList.innerHTML = '<li class="score-item" style="justify-content:center; opacity:0.5;">同步中...</li>';
+    
+    let displayData = [];
+
+    // 1. 尝试从云端获取最新全球排行榜
+    if (supabase) {
+        try {
+            const { data, error } = await supabase
+                .from('leaderboard')
+                .select('*')
+                .eq('mode', mode)
+                .order('score', { ascending: false })
+                .limit(5);
+            
+            if (!error && data) {
+                displayData = data;
+            } else {
+                console.error('Supabase fetch error:', error);
+                displayData = leaderboardData[mode] || []; // 失败则用本地
+            }
+        } catch (e) {
+            displayData = leaderboardData[mode] || [];
+        }
+    } else {
+        displayData = leaderboardData[mode] || [];
+    }
+
+    // 2. 渲染 UI
     targetList.innerHTML = '';
-    
-    const data = leaderboardData[mode] || [];
-    
-    if (data.length === 0) {
+    if (displayData.length === 0) {
         targetList.innerHTML = '<li class="score-item" style="justify-content:center; opacity:0.5;">暂无记录</li>';
     } else {
-        data.forEach((entry, index) => {
+        displayData.forEach((entry, index) => {
             const li = document.createElement('li');
             li.className = 'score-item';
             const modeLabel = modeConfigs[entry.mode].label;
