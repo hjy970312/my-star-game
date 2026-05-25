@@ -86,13 +86,13 @@ canvas {
     height: 100%;
 }
 
-#overlay {
+.overlay {
     position: absolute;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
-    background-color: rgba(0, 0, 0, 0.8);
+    background-color: rgba(0, 0, 0, 0.85);
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -101,8 +101,40 @@ canvas {
     transition: opacity 0.3s;
 }
 
-#overlay.hidden {
-    display: none;
+.overlay.hidden {
+    display: none !important;
+}
+
+.overlay h1 {
+    font-size: 36px;
+    margin-bottom: 30px;
+    text-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
+}
+
+.mode-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    width: 80%;
+    max-width: 300px;
+}
+
+.mode-btn, #restart-btn {
+    padding: 15px 30px;
+    font-size: 20px;
+    background: rgba(233, 69, 96, 0.2);
+    border: 2px solid #e94560;
+    border-radius: 12px;
+    color: white;
+    cursor: pointer;
+    transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    backdrop-filter: blur(5px);
+}
+
+.mode-btn:hover, #restart-btn:hover {
+    background-color: #e94560;
+    transform: scale(1.05);
+    box-shadow: 0 0 20px rgba(233, 69, 96, 0.4);
 }
 
 #overlay h1 {
@@ -116,17 +148,6 @@ canvas {
 }
 
 #restart-btn {
-    padding: 12px 30px;
-    font-size: 20px;
     background-color: #e94560;
     border: none;
-    border-radius: 5px;
-    color: white;
-    cursor: pointer;
-    transition: transform 0.2s, background-color 0.2s;
-}
-
-#restart-btn:hover {
-    background-color: #ff4d6d;
-    transform: scale(1.05);
 }

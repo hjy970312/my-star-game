@@ -8,14 +8,39 @@ const overlay = document.getElementById('overlay');
 const overlayTitle = document.getElementById('overlay-title');
 const finalScoreElement = document.getElementById('final-score');
 const restartBtn = document.getElementById('restart-btn');
+const modeOverlay = document.getElementById('mode-overlay');
+const modeButtons = document.querySelectorAll('.mode-btn');
 
 // 游戏状态
 let score = 0;
 let highScore = localStorage.getItem('starGameHighScore') || 0;
 let level = 1;
 let lives = 3;
-let gameOver = false;
+let gameOver = true; // 初始设为 true，等待模式选择
 let animationId;
+let currentGameMode = 'star';
+
+// 模式配置
+const modeConfigs = {
+    star: {
+        itemColor: '#f9d71c',
+        glowColor: 'rgba(249, 215, 28, 0.4)',
+        particleColor: '#f9d71c',
+        label: '⭐'
+    },
+    flower: {
+        itemColor: '#ff85a2',
+        glowColor: 'rgba(255, 133, 162, 0.4)',
+        particleColor: '#ff85a2',
+        label: '🌸'
+    },
+    fruit: {
+        itemColor: '#ff4d4d',
+        glowColor: 'rgba(255, 77, 77, 0.4)',
+        particleColor: '#ff4d4d',
+        label: '🍎'
+    }
+};
 
 // 难度配置
 const difficulty = {
@@ -107,14 +132,16 @@ function initBackgroundStars() {
 function createStar() {
     const x = Math.random() * (canvas.width - starRadius * 2) + starRadius;
     const speed = difficulty.starSpeedMin + Math.random() * (difficulty.starSpeedMax - difficulty.starSpeedMin);
+    const config = modeConfigs[currentGameMode];
     stars.push({
         x: x,
         y: -starRadius * 2,
         speed: speed,
         rotation: 0,
         rotationSpeed: (Math.random() - 0.5) * 0.1,
-        color: '#f9d71c',
-        glowColor: 'rgba(249, 215, 28, 0.4)'
+        color: config.itemColor,
+        glowColor: config.glowColor,
+        label: config.label
     });
 }
 
@@ -318,22 +345,27 @@ function draw3DStar(s) {
     ctx.shadowBlur = 15;
     ctx.shadowColor = s.glowColor;
 
-    // 创建径向渐变，实现立体感
-    const gradient = ctx.createRadialGradient(-starRadius/3, -starRadius/3, 0, 0, 0, starRadius);
-    gradient.addColorStop(0, '#fff'); // 亮点
-    gradient.addColorStop(0.2, '#f9d71c'); // 主色
-    gradient.addColorStop(1, '#d4af37'); // 阴影边框
+    if (currentGameMode === 'star') {
+        // 经典星形绘制
+        const gradient = ctx.createRadialGradient(-starRadius/3, -starRadius/3, 0, 0, 0, starRadius);
+        gradient.addColorStop(0, '#fff');
+        gradient.addColorStop(0.2, s.color);
+        gradient.addColorStop(1, '#d4af37');
 
-    ctx.fillStyle = gradient;
-    
-    // 绘制星形
-    drawStarShape(0, 0, 5, starRadius, starRadius / 2);
-    ctx.fill();
+        ctx.fillStyle = gradient;
+        drawStarShape(0, 0, 5, starRadius, starRadius / 2);
+        ctx.fill();
 
-    // 添加一些高光线增加立体感
-    ctx.strokeStyle = 'rgba(255, 255, 255, 0.3)';
-    ctx.lineWidth = 1;
-    ctx.stroke();
+        ctx.strokeStyle = 'rgba(255, 255, 255, 0.3)';
+        ctx.lineWidth = 1;
+        ctx.stroke();
+    } else {
+        // 鲜花和水果使用 Emoji 渲染
+        ctx.font = `${starRadius * 2}px Arial`;
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(s.label, 0, 0);
+    }
 
     ctx.restore();
 }
@@ -393,13 +425,26 @@ function restartGame() {
     levelElement.textContent = `等级: ${level}`;
     livesElement.textContent = lives;
     overlay.classList.add('hidden');
+    modeOverlay.classList.add('hidden'); // 同时也隐藏模式选择
     player.x = canvas.width / 2 - player.width / 2;
     loop();
 }
 
-restartBtn.addEventListener('click', restartGame);
+// 模式选择按钮逻辑
+modeButtons.forEach(btn => {
+    btn.addEventListener('click', () => {
+        currentGameMode = btn.dataset.mode;
+        restartGame();
+    });
+});
+
+restartBtn.addEventListener('click', () => {
+    // 重新开始时回到模式选择界面，或者直接重新开始当前模式
+    // 这里我们选择直接重新开始当前模式
+    restartGame();
+});
 
 // 初始化背景
 initBackgroundStars();
-// 开始游戏
-loop();
+// 初始不调用 loop()，等待模式选择
+draw(); // 先画一帧背景

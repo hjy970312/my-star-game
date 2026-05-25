@@ -17,7 +17,15 @@
             <div id="lives">3</div>
         </div>
         <canvas id="gameCanvas"></canvas>
-        <div id="overlay" class="hidden">
+        <div id="mode-overlay" class="overlay">
+            <h1>选择游戏模式</h1>
+            <div class="mode-buttons">
+                <button class="mode-btn" data-mode="star">⭐ 经典星星局</button>
+                <button class="mode-btn" data-mode="flower">🌸 鲜花局</button>
+                <button class="mode-btn" data-mode="fruit">🍎 水果局</button>
+            </div>
+        </div>
+        <div id="overlay" class="overlay hidden">
             <h1 id="overlay-title">游戏结束</h1>
             <p id="final-score">最终得分: 0</p>
             <button id="restart-btn">重新开始</button>
