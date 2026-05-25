@@ -46,6 +46,20 @@ const viewLeaderboardBtn = document.getElementById('view-leaderboard-btn');
 const closeLeaderboardBtn = document.getElementById('close-leaderboard-btn');
 const tabButtons = document.querySelectorAll('.tab-btn');
 const backToHomeBtn = document.getElementById('back-to-home-btn');
+const statusMessage = document.getElementById('status-message');
+
+function showStatus(msg, isError = false, duration = 3000) {
+    if (!statusMessage) return;
+    statusMessage.textContent = msg;
+    statusMessage.classList.remove('hidden', 'error');
+    if (isError) statusMessage.classList.add('error');
+    
+    if (duration > 0) {
+        setTimeout(() => {
+            statusMessage.classList.add('hidden');
+        }, duration);
+    }
+}
 
 // Supabase 初始化昵称系统相关
 const nameModal = document.getElementById('name-modal');
@@ -57,22 +71,37 @@ const userInfoArea = document.getElementById('user-info');
 
 // Supabase 初始化
 const SUPABASE_URL = 'https://sorpglfmkavzbhnnfvzm.supabase.co';
-// 终于拿到了完整的 Key！
 const SUPABASE_KEY = 'sb_publishable_5KKVuBr3V00V6DT8fqegWg_YBLFRoj1'; 
 let supabaseClient = null;
 
 function initSupabase() {
+    // 检查 SDK 是否加载
+    if (!window.supabase) {
+        console.warn("Supabase SDK not loaded. Switching to local mode.");
+        showStatus("联机服务加载失败，已切换至本地模式", true, 5000);
+        return;
+    }
+
     try {
-        if (window.supabase && SUPABASE_KEY !== 'YOUR_FULL_ANON_KEY_HERE') {
+        if (SUPABASE_KEY && SUPABASE_KEY !== 'YOUR_FULL_ANON_KEY_HERE') {
             supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
             console.log("Supabase Client initialized.");
+            showStatus("联机服务已就绪");
         }
     } catch (e) {
-        console.warn("Supabase initialization error:", e);
+        console.error("Supabase initialization error:", e);
+        showStatus("联机服务初始化失败", true, 5000);
     }
 }
 
-initSupabase();
+// 延迟初始化，给 SDK 加载一点时间，并设置超时检测
+window.addEventListener('load', () => {
+    setTimeout(() => {
+        if (!supabaseClient) {
+            initSupabase();
+        }
+    }, 500);
+});
 
 // --- 3. 数据初始化 ---
 let highScore = localStorage.getItem('starGameHighScore') || 0;
@@ -475,17 +504,35 @@ async function saveScore(newScore, mode) {
     // 2. 云端 Supabase 存储
     if (supabaseClient) {
         try {
-            const { error } = await supabaseClient
+            // 增加保存状态提示
+            showStatus("正在同步分数...", false, 2000);
+            
+            const insertPromise = supabaseClient
                 .from('leaderboard')
                 .insert([{ 
                     score: newScore, 
                     mode: mode,
                     name: playerName || '匿名玩家'
                 }]);
-            if (error) console.error('Supabase save error:', error);
+            
+            const timeoutPromise = new Promise((_, reject) => 
+                setTimeout(() => reject(new Error('Timeout')), 5000)
+            );
+
+            const { error } = await Promise.race([insertPromise, timeoutPromise]);
+            
+            if (error) {
+                console.error('Supabase save error:', error);
+                showStatus("云端保存失败，已存至本地", true);
+            } else {
+                showStatus("分数已成功同步至全球榜单");
+            }
         } catch (e) {
             console.error('Cloud save failed:', e);
+            showStatus("同步超时，已存至本地", true);
         }
+    } else {
+        showStatus("本地模式：分数已保存");
     }
 }
 

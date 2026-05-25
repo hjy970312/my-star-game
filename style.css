@@ -26,6 +26,31 @@ body {
     border-radius: 20px;
 }
 
+#status-message {
+    position: absolute;
+    bottom: 60px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(106, 76, 147, 0.9);
+    color: white;
+    padding: 8px 15px;
+    border-radius: 10px;
+    font-size: 8px;
+    z-index: 100;
+    text-align: center;
+    pointer-events: none;
+    transition: opacity 0.3s;
+}
+
+#status-message.error {
+    background: rgba(255, 133, 162, 0.9);
+}
+
+#status-message.hidden {
+    display: none;
+    opacity: 0;
+}
+
 #ui {
     position: absolute;
     top: 0;

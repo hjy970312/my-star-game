@@ -4,11 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>接星星游戏</title>
-    <link href="https://fonts.geekzu.org/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="style.css?v=12">
+    <link href="https://fonts.loli.net/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css?v=13">
 </head>
 <body>
     <div id="game-container">
+        <!-- 状态提示信息 -->
+        <div id="status-message" class="hidden"></div>
         <div id="ui">
             <div id="score-container">
                 <div id="score">0</div>
@@ -71,7 +73,7 @@
             </div>
         </div>
     </div>
-    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
-    <script src="game.js?v=12"></script>
+    <script src="https://lib.baomitu.com/supabase/2.39.7/supabase.min.js"></script>
+    <script src="game.js?v=13"></script>
 </body>
 </html>
