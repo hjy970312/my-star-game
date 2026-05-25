@@ -1,133 +1,68 @@
 body {
     margin: 0;
     padding: 0;
+    width: 100vw;
+    height: 100vh;
     display: flex;
     justify-content: center;
     align-items: center;
-    height: 100vh;
-    background-color: #1a1a2e;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    color: white;
+    background-color: #0b0b1a;
+    font-family: 'Press Start 2P', cursive;
+    color: #fff;
     overflow: hidden;
+    image-rendering: pixelated;
 }
 
 #game-container {
     position: relative;
     width: 100%;
-    max-width: 600px;
-    height: 80vh;
-    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
-    border-radius: 16px;
+    height: 100%;
+    max-width: 800px;
+    max-height: 600px;
+    background-color: #000;
+    box-shadow: 0 0 50px rgba(0,0,0,0.5);
     overflow: hidden;
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    border: 4px solid #3a3a5a;
 }
 
 #ui {
     position: absolute;
-    top: 20px;
-    left: 20px;
-    right: 20px;
+    top: 15px;
+    left: 15px;
+    right: 15px;
     display: flex;
     justify-content: space-between;
     z-index: 10;
     pointer-events: none;
-}
-
-#user-info {
-    margin-bottom: 25px;
-    background: rgba(255, 255, 255, 0.1);
-    padding: 10px 20px;
-    border-radius: 25px;
-    display: flex;
-    align-items: center;
-    gap: 15px;
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    cursor: pointer; /* 增加手型，提示整个区域可点 */
-}
-
-#player-name-display {
-    font-size: 16px;
-    color: #f9d71c;
-    font-weight: bold;
-}
-
-.icon-btn {
-    background: rgba(255, 255, 255, 0.1);
-    border: none;
-    cursor: pointer;
-    font-size: 18px;
-    padding: 5px 10px;
-    border-radius: 50%;
-    transition: all 0.2s;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.icon-btn:active {
-    background: rgba(255, 255, 255, 0.3);
-    transform: scale(0.9);
-}
-
-#nickname-input {
-    width: 90%;
-    padding: 15px;
-    background: rgba(255, 255, 255, 0.1);
-    border: 2px solid rgba(255, 255, 255, 0.3);
-    border-radius: 12px;
-    color: white;
-    font-size: 20px;
-    text-align: center;
-    outline: none;
-    margin-bottom: 10px;
-    -webkit-appearance: none; /* 移除 iOS 默认内阴影 */
-    appearance: none;         /* 标准属性 */
-}
-
-#nickname-input:focus {
-    border-color: #e94560;
-    background: rgba(255, 255, 255, 0.15);
+    font-size: 10px;
 }
 
 #score-container, #level, #lives {
-    background: rgba(255, 255, 255, 0.1);
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
-    padding: 10px 20px;
-    border-radius: 12px;
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    font-size: 18px;
-    font-weight: 600;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    background: rgba(0, 0, 0, 0.6);
+    padding: 8px 12px;
+    border: 2px solid #3a3a5a;
     display: flex;
     flex-direction: column;
-    justify-content: center;
     align-items: center;
     gap: 4px;
 }
 
-#score-container {
-    min-width: 100px;
+#score {
+    font-size: 14px;
+    color: #f9d71c;
 }
 
 #high-score {
-    font-size: 12px;
+    font-size: 8px;
     opacity: 0.8;
 }
 
-#score::before {
-    content: '⭐';
-    margin-right: 4px;
-}
-
-#level::before {
-    content: '⚡';
-    margin-right: 4px;
+#level, #lives {
+    font-size: 10px;
 }
 
 #lives {
     flex-direction: row;
-    font-size: 20px;
 }
 
 #lives::before {
@@ -136,7 +71,7 @@ body {
 }
 
 canvas {
-    background: linear-gradient(to bottom, #16213e, #0f3460);
+    background: #0b0b1a;
     display: block;
     width: 100%;
     height: 100%;
@@ -148,7 +83,7 @@ canvas {
     left: 0;
     width: 100%;
     height: 100%;
-    background-color: rgba(0, 0, 0, 0.85);
+    background-color: rgba(11, 11, 26, 0.9);
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -162,179 +97,160 @@ canvas {
 }
 
 .overlay h1 {
-    font-size: 36px;
-    margin-bottom: 30px;
-    text-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
+    font-size: 16px;
+    margin-bottom: 25px;
+    text-align: center;
+    color: #f9d71c;
+}
+
+#user-info {
+    margin-bottom: 20px;
+    background: #1e1e3f;
+    padding: 8px 12px;
+    border: 3px solid #3a3a5a;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+}
+
+#player-name-display {
+    font-size: 10px;
+    color: #fff;
+}
+
+.icon-btn {
+    background: #3a3a5a;
+    border: none;
+    cursor: pointer;
+    font-size: 12px;
+    padding: 2px 5px;
+    color: #fff;
 }
 
 .mode-buttons {
     display: flex;
     flex-direction: column;
-    gap: 15px;
+    gap: 10px;
     width: 80%;
-    max-width: 300px;
+    max-width: 240px;
 }
 
-.mode-btn, #restart-btn {
-    padding: 15px 30px;
-    font-size: 20px;
-    background: rgba(233, 69, 96, 0.2);
-    border: 2px solid #e94560;
-    border-radius: 12px;
+.mode-btn, #restart-btn, .secondary-btn {
+    padding: 10px;
+    font-size: 8px;
+    background: #2f3640;
+    border: 3px solid #7f8fa6;
     color: white;
     cursor: pointer;
-    transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-    backdrop-filter: blur(5px);
+    font-family: 'Press Start 2P', cursive;
+    transition: all 0.1s;
+    text-align: center;
 }
 
-.mode-btn:hover, #restart-btn:hover {
-    background-color: #e94560;
-    transform: scale(1.05);
-    box-shadow: 0 0 20px rgba(233, 69, 96, 0.4);
+.mode-btn:hover, #restart-btn:hover, .secondary-btn:hover {
+    background: #7f8fa6;
+    border-color: #f5f6fa;
 }
 
-.secondary-btn {
-    margin-top: 10px;
-    padding: 10px 20px;
-    font-size: 16px;
-    background: rgba(255, 255, 255, 0.1);
-    border: 1px solid rgba(255, 255, 255, 0.3);
-    border-radius: 8px;
-    color: white;
-    cursor: pointer;
-    transition: all 0.2s;
-}
-
-.secondary-btn:hover {
-    background: rgba(255, 255, 255, 0.2);
-    border-color: rgba(255, 255, 255, 0.5);
+#nickname-input {
+    width: 80%;
+    padding: 10px;
+    background: #000;
+    border: 3px solid #3a3a5a;
+    color: #f9d71c;
+    font-size: 10px;
+    text-align: center;
+    outline: none;
+    font-family: 'Press Start 2P', cursive;
+    appearance: none;
+    -webkit-appearance: none;
 }
 
 .modal-content {
-    background: rgba(26, 26, 46, 0.98);
-    padding: 30px 20px;
-    border-radius: 24px;
-    border: 1px solid rgba(255, 255, 255, 0.2);
+    background: #1e1e3f;
+    padding: 20px;
+    border: 4px solid #3a3a5a;
     width: 85%;
-    max-width: 340px;
+    max-width: 300px;
     display: flex;
     flex-direction: column;
     align-items: center;
-    box-shadow: 0 0 50px rgba(0,0,0,0.8);
-    position: relative;
 }
 
 .modal-content h2 {
+    font-size: 12px;
     margin-top: 0;
-    font-size: 24px;
     color: #f9d71c;
-}
-
-#main-leaderboard-content {
-    width: 100%;
-    margin: 10px 0 20px 0;
+    margin-bottom: 15px;
 }
 
 .leaderboard-tabs {
     display: flex;
-    gap: 10px;
+    gap: 5px;
     margin-bottom: 10px;
 }
 
 .tab-btn {
-    background: rgba(255, 255, 255, 0.05);
-    border: 1px solid rgba(255, 255, 255, 0.2);
+    background: #2f3640;
+    border: 2px solid #3a3a5a;
     color: white;
-    padding: 5px 12px;
-    border-radius: 20px;
+    padding: 4px 6px;
     cursor: pointer;
-    font-size: 14px;
-    transition: all 0.2s;
+    font-size: 7px;
+    font-family: 'Press Start 2P', cursive;
 }
 
 .tab-btn.active {
     background: #f9d71c;
     color: #000;
-    border-color: #f9d71c;
-    font-weight: bold;
-}
-
-#overlay h1 {
-    font-size: 48px;
-    margin-bottom: 10px;
-}
-
-#overlay p {
-    font-size: 24px;
-    margin-bottom: 20px;
+    border-color: #fff;
 }
 
 #leaderboard {
-    background: rgba(255, 255, 255, 0.05);
-    border-radius: 12px;
-    padding: 15px;
-    width: 85%;
-    max-width: 320px;
-    margin-bottom: 20px;
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    max-height: 40vh; /* 限制高度，防止超出屏幕 */
-    overflow-y: auto; /* 支持滚动 */
-}
-
-.end-buttons {
-    display: flex;
-    gap: 15px;
-    width: 85%;
-    max-width: 320px;
-}
-
-.end-buttons button {
-    flex: 1;
-    margin: 0;
+    background: #000;
+    padding: 10px;
+    width: 90%;
+    margin-bottom: 15px;
+    border: 2px solid #3a3a5a;
+    max-height: 30vh;
+    overflow-y: auto;
 }
 
 #leaderboard h3 {
-    margin: 0 0 10px 0;
-    font-size: 18px;
+    margin: 0 0 8px 0;
+    font-size: 8px;
     text-align: center;
-    color: #f9d71c;
+    color: #4cd137;
 }
 
 #score-list {
     list-style: none;
     padding: 0;
-    margin: 0;
 }
 
 .score-item {
     display: flex;
     justify-content: space-between;
-    padding: 8px 10px;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-    font-size: 16px;
+    padding: 6px 0;
+    border-bottom: 1px solid #1e1e3f;
+    font-size: 7px;
 }
 
-.score-item:last-child {
-    border-bottom: none;
+.score-rank { color: #8c7ae6; width: 20px; }
+.score-name { flex: 1; margin-left: 5px; overflow: hidden; text-overflow: ellipsis; }
+.score-mode { opacity: 0.7; }
+.score-val { color: #fbc531; margin-left: 8px; }
+
+.end-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    width: 85%;
 }
 
-.score-rank {
-    font-weight: bold;
-    color: rgba(255, 255, 255, 0.5);
-    width: 25px;
-}
-
-.score-val {
-    font-family: monospace;
-    color: #fff;
-}
-
-.score-mode {
+#final-score {
     font-size: 12px;
-    opacity: 0.6;
-}
-
-#restart-btn {
-    background-color: #e94560;
-    border: none;
+    color: #fbc531;
+    margin-bottom: 10px;
 }

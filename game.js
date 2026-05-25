@@ -346,67 +346,72 @@ function update() {
 }
 
 function draw() {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    // 1. 绘制深邃夜空背景
+    const bgGradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
+    bgGradient.addColorStop(0, '#0b0b1a');
+    bgGradient.addColorStop(1, '#1e1e3f');
+    ctx.fillStyle = bgGradient;
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-    // 画背景星星
-    for (const bs of bgStars) {
-        ctx.fillStyle = `rgba(255, 255, 255, ${bs.opacity})`;
-        ctx.beginPath();
-        ctx.arc(bs.x, bs.y, bs.size, 0, Math.PI * 2);
-        ctx.fill();
+    // 2. 绘制背景飘动的星星 (Pixel Art 风格)
+    bgStars.forEach(s => {
+        ctx.fillStyle = `rgba(255, 255, 255, ${s.opacity})`;
+        // 像素点风格的星星
+        const size = Math.floor(s.size) + 1;
+        ctx.fillRect(Math.floor(s.x), Math.floor(s.y), size, size);
+        
+        s.y += s.speed;
+        if (s.y > canvas.height) {
+            s.y = -10;
+            s.x = Math.random() * canvas.width;
+        }
+    });
+
+    // 如果没结束，绘制游戏元素
+    if (!gameOver) {
+        // 绘制粒子
+        particles.forEach((p, i) => {
+            ctx.globalAlpha = p.life;
+            ctx.fillStyle = p.color;
+            const size = Math.floor(p.size) + 1;
+            ctx.fillRect(Math.floor(p.x), Math.floor(p.y), size, size);
+        });
+        ctx.globalAlpha = 1.0;
+
+        // 绘制掉落物 (星星/鲜花/水果)
+        stars.forEach(s => draw3DStar(s));
+
+        // 绘制玩家 (Pixel Art 风格的滑块)
+        ctx.save();
+        // 绘制主体
+        ctx.fillStyle = player.color;
+        ctx.fillRect(Math.floor(player.x), Math.floor(player.y), player.width, player.height);
+        // 绘制高光边缘
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.3)';
+        ctx.fillRect(Math.floor(player.x), Math.floor(player.y), player.width, 2);
+        // 绘制阴影边缘
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.3)';
+        ctx.fillRect(Math.floor(player.x), Math.floor(player.y + player.height - 2), player.width, 2);
+        ctx.restore();
     }
-
-    // 画玩家
-    ctx.shadowBlur = 15;
-    ctx.shadowColor = player.glowColor;
-    ctx.fillStyle = player.color;
-    ctx.beginPath();
-    ctx.roundRect(player.x, player.y, player.width, player.height, player.height / 2);
-    ctx.fill();
-    ctx.shadowBlur = 0;
-
-    // 画星星
-    for (const s of stars) {
-        draw3DStar(s);
-    }
-
-    // 画粒子
-    for (const p of particles) {
-        ctx.globalAlpha = p.life;
-        ctx.fillStyle = p.color;
-        ctx.beginPath();
-        ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
-        ctx.fill();
-    }
-    ctx.globalAlpha = 1.0;
 }
 
 function draw3DStar(s) {
     ctx.save();
-    ctx.translate(s.x, s.y);
+    ctx.translate(Math.floor(s.x), Math.floor(s.y));
     ctx.rotate(s.rotation);
 
-    // 外发光
-    ctx.shadowBlur = 15;
-    ctx.shadowColor = s.glowColor;
-
     if (currentGameMode === 'star') {
-        // 经典星形绘制
-        const gradient = ctx.createRadialGradient(-starRadius/3, -starRadius/3, 0, 0, 0, starRadius);
-        gradient.addColorStop(0, '#fff');
-        gradient.addColorStop(0.2, s.color);
-        gradient.addColorStop(1, '#d4af37');
-
-        ctx.fillStyle = gradient;
-        drawStarShape(0, 0, 5, starRadius, starRadius / 2);
-        ctx.fill();
-
-        ctx.strokeStyle = 'rgba(255, 255, 255, 0.3)';
-        ctx.lineWidth = 1;
-        ctx.stroke();
+        // 像素风格的星星 (简化为 4 像素十字或简单星形)
+        ctx.fillStyle = s.color;
+        const r = starRadius;
+        // 绘制一个简单的像素星形
+        ctx.fillRect(-2, -r, 4, r*2);
+        ctx.fillRect(-r, -2, r*2, 4);
+        ctx.fillRect(-Math.floor(r/1.5), -Math.floor(r/1.5), Math.floor((r*2)/1.5), Math.floor((r*2)/1.5));
     } else {
-        // 鲜花和水果使用 Emoji 渲染
-        ctx.font = `${starRadius * 2}px Arial`;
+        // 鲜花和水果保持 Emoji，但稍微缩小一点以适配像素风
+        ctx.font = `${starRadius * 1.5}px Arial`;
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
         ctx.fillText(s.label, 0, 0);
