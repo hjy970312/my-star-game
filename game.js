@@ -19,39 +19,58 @@ const tabButtons = document.querySelectorAll('.tab-btn');
 
 // Supabase 初始化
 const SUPABASE_URL = 'https://sorpglfmkavzbhnnfvzm.supabase.co';
-const SUPABASE_KEY = 'sb_publishable_5KKVuBr3V0OV6DT8fqexx'; 
+const SUPABASE_KEY = 'sb_publishable_5KKVuBr3V0OV6DT8fqex'; // 修正为正确的 Key
 let supabase = null;
 
-try {
-    if (window.supabase) {
-        supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+function initSupabase() {
+    try {
+        if (window.supabase) {
+            supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+            console.log("Supabase initialized successfully.");
+        } else {
+            console.warn("Supabase SDK not found.");
+        }
+    } catch (e) {
+        console.error("Supabase initialization error:", e);
     }
-} catch (e) {
-    console.warn("Supabase initialization failed, switching to local mode.");
+}
+
+// 安全获取 DOM 元素的辅助函数
+function safeGetElement(id) {
+    const el = document.getElementById(id);
+    if (!el) console.warn(`Element with id "${id}" not found.`);
+    return el;
 }
 
 // 昵称系统相关
-const nameModal = document.getElementById('name-modal');
-const nicknameInput = document.getElementById('nickname-input');
-const saveNameBtn = document.getElementById('save-name-btn');
-const editNameBtn = document.getElementById('edit-name-btn');
-const playerNameDisplay = document.getElementById('player-name-display');
+const nameModal = safeGetElement('name-modal');
+const nicknameInput = safeGetElement('nickname-input');
+const saveNameBtn = safeGetElement('save-name-btn');
+const editNameBtn = safeGetElement('edit-name-btn');
+const playerNameDisplay = safeGetElement('player-name-display');
+const userInfoArea = safeGetElement('user-info');
 
 // 游戏状态
 let score = 0;
 let highScore = localStorage.getItem('starGameHighScore') || 0;
-let leaderboardData = JSON.parse(localStorage.getItem('starGameLeaderboardV2')) || {
-    star: [],
-    flower: [],
-    fruit: []
-};
+let leaderboardData = { star: [], flower: [], fruit: [] };
+try {
+    const savedData = localStorage.getItem('starGameLeaderboardV2');
+    if (savedData) leaderboardData = JSON.parse(savedData);
+} catch (e) {
+    console.error("Failed to parse local leaderboard:", e);
+}
+
 let playerName = localStorage.getItem('starGamePlayerName') || '';
 let level = 1;
 let lives = 3;
-let gameOver = true; // 初始设为 true，等待模式选择
+let gameOver = true; 
 let animationId;
 let currentGameMode = 'star';
-let currentTab = 'star'; // 排行榜当前选中的标签
+let currentTab = 'star'; 
+
+// 初始化 Supabase
+initSupabase();
 
 // 模式配置
 const modeConfigs = {
@@ -543,31 +562,37 @@ function updateNameDisplay() {
 }
 
 function showNameModal() {
-    nicknameInput.value = playerName;
-    nameModal.classList.remove('hidden');
+    if (nicknameInput) nicknameInput.value = playerName;
+    if (nameModal) nameModal.classList.remove('hidden');
 }
 
-saveNameBtn.addEventListener('click', () => {
-    const newName = nicknameInput.value.trim();
-    if (newName) {
-        playerName = newName;
-        localStorage.setItem('starGamePlayerName', playerName);
-        updateNameDisplay();
-        nameModal.classList.add('hidden');
-    } else {
-        alert('请输入一个有效的昵称哦！');
-    }
-});
+if (saveNameBtn) {
+    saveNameBtn.addEventListener('click', () => {
+        const newName = nicknameInput.value.trim();
+        if (newName) {
+            playerName = newName;
+            localStorage.setItem('starGamePlayerName', playerName);
+            updateNameDisplay();
+            if (nameModal) nameModal.classList.add('hidden');
+        } else {
+            alert('请输入一个有效的昵称哦！');
+        }
+    });
+}
 
-editNameBtn.addEventListener('click', showNameModal);
+if (editNameBtn) {
+    editNameBtn.addEventListener('click', showNameModal);
+}
 
 // 修复手机端点击昵称区域也能触发修改
-document.getElementById('user-info').addEventListener('click', (e) => {
-    // 如果点的是按钮本身，就不重复触发了
-    if (e.target !== editNameBtn) {
-        showNameModal();
-    }
-});
+if (userInfoArea) {
+    userInfoArea.addEventListener('click', (e) => {
+        // 如果点的是按钮本身，就不重复触发了
+        if (e.target !== editNameBtn) {
+            showNameModal();
+        }
+    });
+}
 
 // 初始化时检查是否设置了名字
 if (!playerName) {
@@ -636,7 +661,11 @@ restartBtn.addEventListener('click', () => {
     restartGame();
 });
 
-// 初始化背景
-initBackgroundStars();
-// 初始不调用 loop()，等待模式选择
-draw(); // 先画一帧背景
+// 初始化背景与首帧渲染
+try {
+    initBackgroundStars();
+    draw(); 
+    console.log("Initial background stars and frame drawn.");
+} catch (e) {
+    console.error("Initialization error (background/draw):", e);
+}
