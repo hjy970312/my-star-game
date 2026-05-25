@@ -20,12 +20,12 @@ const tabButtons = document.querySelectorAll('.tab-btn');
 // Supabase 初始化
 const SUPABASE_URL = 'https://sorpglfmkavzbhnnfvzm.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_5KKVuBr3V0OV6DT8fqex'; // 修正为正确的 Key
-let supabase = null;
+let supabaseClient = null;
 
 function initSupabase() {
     try {
         if (window.supabase) {
-            supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+            supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
             console.log("Supabase initialized successfully.");
         } else {
             console.warn("Supabase SDK not found.");
@@ -479,9 +479,9 @@ async function saveScore(newScore, mode) {
     localStorage.setItem('starGameLeaderboardV2', JSON.stringify(leaderboardData));
 
     // 2. 云端 Supabase 存储
-    if (supabase) {
+    if (supabaseClient) {
         try {
-            const { error } = await supabase
+            const { error } = await supabaseClient
                 .from('leaderboard')
                 .insert([{ 
                     score: newScore, 
@@ -502,10 +502,10 @@ async function updateLeaderboardUI(targetList, mode) {
     let displayData = [];
 
     // 1. 尝试从云端获取最新全球排行榜
-    if (supabase) {
+    if (supabaseClient) {
         try {
             // 设置一个 3 秒超时，防止服务器不可用时卡死
-            const fetchPromise = supabase
+            const fetchPromise = supabaseClient
                 .from('leaderboard')
                 .select('*')
                 .eq('mode', mode)
