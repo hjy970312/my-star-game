@@ -17,17 +17,25 @@ const viewLeaderboardBtn = document.getElementById('view-leaderboard-btn');
 const closeLeaderboardBtn = document.getElementById('close-leaderboard-btn');
 const tabButtons = document.querySelectorAll('.tab-btn');
 
+// Supabase 初始化
+const SUPABASE_URL = 'https://sorpglfmkavzbhnnfvzm.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_5KKVuBr3V0OV6DT8fqexx'; 
+let supabase = null;
+
+try {
+    if (window.supabase) {
+        supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+    }
+} catch (e) {
+    console.warn("Supabase initialization failed, switching to local mode.");
+}
+
 // 昵称系统相关
 const nameModal = document.getElementById('name-modal');
 const nicknameInput = document.getElementById('nickname-input');
 const saveNameBtn = document.getElementById('save-name-btn');
 const editNameBtn = document.getElementById('edit-name-btn');
 const playerNameDisplay = document.getElementById('player-name-display');
-
-// Supabase 初始化
-const SUPABASE_URL = 'https://sorpglfmkavzbhnnfvzm.supabase.co';
-const SUPABASE_KEY = 'sb_publishable_5KKVuBr3V0OV6DT8fqexx'; // 这里使用了你提供的 Key
-const supabase = window.supabase ? window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY) : null;
 
 // 游戏状态
 let score = 0;
@@ -477,20 +485,28 @@ async function updateLeaderboardUI(targetList, mode) {
     // 1. 尝试从云端获取最新全球排行榜
     if (supabase) {
         try {
-            const { data, error } = await supabase
+            // 设置一个 3 秒超时，防止服务器不可用时卡死
+            const fetchPromise = supabase
                 .from('leaderboard')
                 .select('*')
                 .eq('mode', mode)
                 .order('score', { ascending: false })
                 .limit(5);
             
+            const timeoutPromise = new Promise((_, reject) => 
+                setTimeout(() => reject(new Error('Timeout')), 3000)
+            );
+
+            const { data, error } = await Promise.race([fetchPromise, timeoutPromise]);
+            
             if (!error && data) {
                 displayData = data;
             } else {
                 console.error('Supabase fetch error:', error);
-                displayData = leaderboardData[mode] || []; // 失败则用本地
+                displayData = leaderboardData[mode] || [];
             }
         } catch (e) {
+            console.error('Cloud fetch failed, switching to local:', e);
             displayData = leaderboardData[mode] || [];
         }
     } else {
