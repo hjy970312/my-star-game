@@ -23,6 +23,17 @@
                 <button class="mode-btn" data-mode="star">⭐ 经典星星局</button>
                 <button class="mode-btn" data-mode="flower">🌸 鲜花局</button>
                 <button class="mode-btn" data-mode="fruit">🍎 水果局</button>
+                <button id="view-leaderboard-btn" class="secondary-btn">🏆 查看排行榜</button>
+            </div>
+        </div>
+        <!-- 主页排行榜弹窗 -->
+        <div id="leaderboard-modal" class="overlay hidden">
+            <div class="modal-content">
+                <h2>🏆 历史最高得分</h2>
+                <div id="main-leaderboard-content">
+                    <ul id="main-score-list"></ul>
+                </div>
+                <button id="close-leaderboard-btn" class="secondary-btn">返回主页</button>
             </div>
         </div>
         <div id="overlay" class="overlay hidden">

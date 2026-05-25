@@ -11,6 +11,10 @@ const restartBtn = document.getElementById('restart-btn');
 const modeOverlay = document.getElementById('mode-overlay');
 const modeButtons = document.querySelectorAll('.mode-btn');
 const scoreListElement = document.getElementById('score-list');
+const leaderboardModal = document.getElementById('leaderboard-modal');
+const mainScoreListElement = document.getElementById('main-score-list');
+const viewLeaderboardBtn = document.getElementById('view-leaderboard-btn');
+const closeLeaderboardBtn = document.getElementById('close-leaderboard-btn');
 
 // 游戏状态
 let score = 0;
@@ -432,27 +436,40 @@ function saveScore(newScore, mode) {
 }
 
 function updateLeaderboardUI() {
-    scoreListElement.innerHTML = '';
+    // 统一更新两个列表
+    const lists = [scoreListElement, mainScoreListElement];
     
-    if (leaderboardData.length === 0) {
-        scoreListElement.innerHTML = '<li class="score-item" style="justify-content:center; opacity:0.5;">暂无记录</li>';
-        return;
-    }
-
-    leaderboardData.forEach((entry, index) => {
-        const li = document.createElement('li');
-        li.className = 'score-item';
+    lists.forEach(list => {
+        if (!list) return;
+        list.innerHTML = '';
         
-        const modeLabel = modeConfigs[entry.mode].label;
-        
-        li.innerHTML = `
-            <span class="score-rank">#${index + 1}</span>
-            <span class="score-mode">${modeLabel}</span>
-            <span class="score-val">${entry.score}</span>
-        `;
-        scoreListElement.appendChild(li);
+        if (leaderboardData.length === 0) {
+            list.innerHTML = '<li class="score-item" style="justify-content:center; opacity:0.5;">暂无记录</li>';
+        } else {
+            leaderboardData.forEach((entry, index) => {
+                const li = document.createElement('li');
+                li.className = 'score-item';
+                const modeLabel = modeConfigs[entry.mode].label;
+                li.innerHTML = `
+                    <span class="score-rank">#${index + 1}</span>
+                    <span class="score-mode">${modeLabel}</span>
+                    <span class="score-val">${entry.score}</span>
+                `;
+                list.appendChild(li);
+            });
+        }
     });
 }
+
+// 主页排行榜交互
+viewLeaderboardBtn.addEventListener('click', () => {
+    updateLeaderboardUI();
+    leaderboardModal.classList.remove('hidden');
+});
+
+closeLeaderboardBtn.addEventListener('click', () => {
+    leaderboardModal.classList.add('hidden');
+});
 
 function restartGame() {
     score = 0;
