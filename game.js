@@ -1,21 +1,21 @@
-// --- 1. 核心配置与状态 (放在最前面，确保不出现 undefined) ---
+// --- 1. 核心配置与状态 (治愈像素风格配色) ---
 const modeConfigs = {
     star: {
-        itemColor: '#f9d71c',
-        glowColor: 'rgba(249, 215, 28, 0.4)',
-        particleColor: '#f9d71c',
+        itemColor: '#ffcdb2', // 奶油橘
+        glowColor: 'rgba(255, 205, 178, 0.4)',
+        particleColor: '#ffcdb2',
         label: '⭐'
     },
     flower: {
-        itemColor: '#ff85a2',
-        glowColor: 'rgba(255, 133, 162, 0.4)',
-        particleColor: '#ff85a2',
+        itemColor: '#ffb7b2', // 马卡龙粉
+        glowColor: 'rgba(255, 183, 178, 0.4)',
+        particleColor: '#ffb7b2',
         label: '🌸'
     },
     fruit: {
-        itemColor: '#ff4d4d',
-        glowColor: 'rgba(255, 77, 77, 0.4)',
-        particleColor: '#ff4d4d',
+        itemColor: '#b5e48c', // 奶油绿
+        glowColor: 'rgba(181, 228, 140, 0.4)',
+        particleColor: '#b5e48c',
         label: '🍎'
     }
 };
@@ -98,15 +98,15 @@ const particles = [];
 const bgStars = [];
 const starRadius = 12;
 
-// --- 5. 玩家与工具函数 ---
+// --- 5. 玩家与工具函数 (更新玩家颜色) ---
 const player = {
     width: 80,
-    height: 15,
+    height: 20,
     x: 0,
     y: 0,
     speed: 10,
-    color: '#e94560',
-    glowColor: 'rgba(233, 69, 96, 0.6)',
+    color: '#6a4c93', // 深紫色滑块
+    glowColor: 'rgba(106, 76, 147, 0.3)',
     dx: 0
 };
 
@@ -346,21 +346,20 @@ function update() {
 }
 
 function draw() {
-    // 1. 绘制深邃夜空背景
+    // 1. 绘制温馨的奶油背景渐变
     const bgGradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
-    bgGradient.addColorStop(0, '#0b0b1a');
-    bgGradient.addColorStop(1, '#1e1e3f');
+    bgGradient.addColorStop(0, '#fffcf2');
+    bgGradient.addColorStop(1, '#fdf0d5');
     ctx.fillStyle = bgGradient;
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-    // 2. 绘制背景飘动的星星 (Pixel Art 风格)
+    // 2. 绘制背景装饰点 (模仿参考图中的亮斑)
     bgStars.forEach(s => {
-        ctx.fillStyle = `rgba(255, 255, 255, ${s.opacity})`;
-        // 像素点风格的星星
-        const size = Math.floor(s.size) + 1;
+        ctx.fillStyle = `rgba(224, 177, 203, ${s.opacity})`;
+        const size = Math.floor(s.size) + 2;
         ctx.fillRect(Math.floor(s.x), Math.floor(s.y), size, size);
         
-        s.y += s.speed;
+        s.y += s.speed * 0.5;
         if (s.y > canvas.height) {
             s.y = -10;
             s.x = Math.random() * canvas.width;
@@ -381,17 +380,14 @@ function draw() {
         // 绘制掉落物 (星星/鲜花/水果)
         stars.forEach(s => draw3DStar(s));
 
-        // 绘制玩家 (Pixel Art 风格的滑块)
+        // 绘制玩家 (治愈风像素滑块)
         ctx.save();
-        // 绘制主体
         ctx.fillStyle = player.color;
+        // 绘制带边框的滑块
         ctx.fillRect(Math.floor(player.x), Math.floor(player.y), player.width, player.height);
-        // 绘制高光边缘
-        ctx.fillStyle = 'rgba(255, 255, 255, 0.3)';
-        ctx.fillRect(Math.floor(player.x), Math.floor(player.y), player.width, 2);
-        // 绘制阴影边缘
-        ctx.fillStyle = 'rgba(0, 0, 0, 0.3)';
-        ctx.fillRect(Math.floor(player.x), Math.floor(player.y + player.height - 2), player.width, 2);
+        ctx.strokeStyle = '#fff';
+        ctx.lineWidth = 2;
+        ctx.strokeRect(Math.floor(player.x), Math.floor(player.y), player.width, player.height);
         ctx.restore();
     }
 }
