@@ -1,78 +1,4 @@
-const canvas = document.getElementById('gameCanvas');
-const ctx = canvas.getContext('2d');
-const scoreElement = document.getElementById('score');
-const highScoreElement = document.getElementById('high-score');
-const levelElement = document.getElementById('level');
-const livesElement = document.getElementById('lives');
-const overlay = document.getElementById('overlay');
-const overlayTitle = document.getElementById('overlay-title');
-const finalScoreElement = document.getElementById('final-score');
-const restartBtn = document.getElementById('restart-btn');
-const modeOverlay = document.getElementById('mode-overlay');
-const modeButtons = document.querySelectorAll('.mode-btn');
-const scoreListElement = document.getElementById('score-list');
-const leaderboardModal = document.getElementById('leaderboard-modal');
-const mainScoreListElement = document.getElementById('main-score-list');
-const viewLeaderboardBtn = document.getElementById('view-leaderboard-btn');
-const closeLeaderboardBtn = document.getElementById('close-leaderboard-btn');
-const tabButtons = document.querySelectorAll('.tab-btn');
-
-// Supabase 初始化
-const SUPABASE_URL = 'https://sorpglfmkavzbhnnfvzm.supabase.co';
-const SUPABASE_KEY = 'sb_publishable_5KKVuBr3V0OV6DT8fqex'; // 修正为正确的 Key
-let supabaseClient = null;
-
-function initSupabase() {
-    try {
-        if (window.supabase) {
-            supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-            console.log("Supabase initialized successfully.");
-        } else {
-            console.warn("Supabase SDK not found.");
-        }
-    } catch (e) {
-        console.error("Supabase initialization error:", e);
-    }
-}
-
-// 安全获取 DOM 元素的辅助函数
-function safeGetElement(id) {
-    const el = document.getElementById(id);
-    if (!el) console.warn(`Element with id "${id}" not found.`);
-    return el;
-}
-
-// 昵称系统相关
-const nameModal = safeGetElement('name-modal');
-const nicknameInput = safeGetElement('nickname-input');
-const saveNameBtn = safeGetElement('save-name-btn');
-const editNameBtn = safeGetElement('edit-name-btn');
-const playerNameDisplay = safeGetElement('player-name-display');
-const userInfoArea = safeGetElement('user-info');
-
-// 游戏状态
-let score = 0;
-let highScore = localStorage.getItem('starGameHighScore') || 0;
-let leaderboardData = { star: [], flower: [], fruit: [] };
-try {
-    const savedData = localStorage.getItem('starGameLeaderboardV2');
-    if (savedData) leaderboardData = JSON.parse(savedData);
-} catch (e) {
-    console.error("Failed to parse local leaderboard:", e);
-}
-
-let playerName = localStorage.getItem('starGamePlayerName') || '';
-let level = 1;
-let lives = 3;
-let gameOver = true; 
-let animationId;
-let currentGameMode = 'star';
-let currentTab = 'star'; 
-
-// 初始化 Supabase
-initSupabase();
-
-// 模式配置
+// --- 1. 核心配置与状态 (放在最前面，确保不出现 undefined) ---
 const modeConfigs = {
     star: {
         itemColor: '#f9d71c',
@@ -94,64 +20,79 @@ const modeConfigs = {
     }
 };
 
-// 难度配置
+let currentGameMode = 'star';
+let gameOver = true; 
+let score = 0;
+let level = 1;
+let lives = 3;
+let animationId = null;
+
+// --- 2. 元素获取与 Supabase 初始化 ---
+const canvas = document.getElementById('gameCanvas');
+const ctx = canvas.getContext('2d');
+const scoreElement = document.getElementById('score');
+const highScoreElement = document.getElementById('high-score');
+const levelElement = document.getElementById('level');
+const livesElement = document.getElementById('lives');
+const overlay = document.getElementById('overlay');
+const finalScoreElement = document.getElementById('final-score');
+const restartBtn = document.getElementById('restart-btn');
+const modeOverlay = document.getElementById('mode-overlay');
+const modeButtons = document.querySelectorAll('.mode-btn');
+const scoreListElement = document.getElementById('score-list');
+const leaderboardModal = document.getElementById('leaderboard-modal');
+const mainScoreListElement = document.getElementById('main-score-list');
+const viewLeaderboardBtn = document.getElementById('view-leaderboard-btn');
+const closeLeaderboardBtn = document.getElementById('close-leaderboard-btn');
+const tabButtons = document.querySelectorAll('.tab-btn');
+
+// 昵称系统相关
+const nameModal = document.getElementById('name-modal');
+const nicknameInput = document.getElementById('nickname-input');
+const saveNameBtn = document.getElementById('save-name-btn');
+const editNameBtn = document.getElementById('edit-name-btn');
+const playerNameDisplay = document.getElementById('player-name-display');
+const userInfoArea = document.getElementById('user-info');
+
+// Supabase 初始化 (使用更安全的变量名避免冲突)
+const SUPABASE_URL = 'https://sorpglfmkavzbhnnfvzm.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_5KKVuBr3V0OV6DT8fqex'; 
+let supabaseClient = null;
+
+try {
+    if (window.supabase) {
+        supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+        console.log("Supabase Client initialized.");
+    }
+} catch (e) {
+    console.warn("Supabase initialization error:", e);
+}
+
+// --- 3. 数据初始化 ---
+let highScore = localStorage.getItem('starGameHighScore') || 0;
+let leaderboardData = { star: [], flower: [], fruit: [] };
+try {
+    const savedData = localStorage.getItem('starGameLeaderboardV2');
+    if (savedData) leaderboardData = JSON.parse(savedData);
+} catch (e) {}
+
+let playerName = localStorage.getItem('starGamePlayerName') || '';
+let currentTab = 'star'; 
+highScoreElement.textContent = `最佳: ${highScore}`;
+
+// --- 4. 难度与游戏容器 ---
 const difficulty = {
     starSpawnRate: 0.015,
     starSpeedMin: 0.8,
     starSpeedMax: 1.8
 };
 
-// 初始化最高分显示
-highScoreElement.textContent = `最佳: ${highScore}`;
-
-// 星星和粒子数据容器 (提前定义以供 resize 调用)
 const stars = [];
 const particles = [];
 const bgStars = [];
 const starRadius = 12;
 
-// 调整画布大小时更新玩家位置
-function resize() {
-    const displayWidth = canvas.clientWidth || 600;
-    const displayHeight = canvas.clientHeight || 400;
-    
-    const oldWidth = canvas.width;
-    const oldHeight = canvas.height;
-    canvas.width = displayWidth;
-    canvas.height = displayHeight;
-    
-    if (typeof player !== 'undefined') {
-        // 按比例调整玩家水平位置
-        if (oldWidth > 0 && oldWidth !== displayWidth) {
-            const ratioX = player.x / oldWidth;
-            player.x = canvas.width * ratioX;
-        } else if (oldWidth === 0) {
-            player.x = canvas.width / 2 - player.width / 2;
-        }
-
-        // 按比例调整玩家垂直位置
-        if (oldHeight > 0 && oldHeight !== displayHeight) {
-            const ratioY = player.y / oldHeight;
-            player.y = canvas.height * ratioY;
-        } else if (oldHeight === 0) {
-            player.y = canvas.height - 40;
-        }
-
-        // 确保不超出边界
-        keepPlayerInBounds();
-    }
-    initBackgroundStars();
-}
-
-function keepPlayerInBounds() {
-    if (player.x < 0) player.x = 0;
-    if (player.x > canvas.width - player.width) player.x = canvas.width - player.width;
-    if (player.y < 0) player.y = 0;
-    if (player.y > canvas.height - player.height) player.y = canvas.height - player.height;
-}
-window.addEventListener('resize', resize);
-
-// 玩家对象
+// --- 5. 玩家与工具函数 ---
 const player = {
     width: 80,
     height: 15,
@@ -162,11 +103,14 @@ const player = {
     glowColor: 'rgba(233, 69, 96, 0.6)',
     dx: 0
 };
-player.x = canvas.width / 2 - player.width / 2;
-player.y = canvas.height - 40;
 
-// 注意：resize() 现在在 player 定义后调用
-resize();
+function keepPlayerInBounds() {
+    if (!player) return;
+    if (player.x < 0) player.x = 0;
+    if (player.x > canvas.width - player.width) player.x = canvas.width - player.width;
+    if (player.y < 0) player.y = 0;
+    if (player.y > canvas.height - player.height) player.y = canvas.height - player.height;
+}
 
 function initBackgroundStars() {
     bgStars.length = 0;
@@ -181,20 +125,63 @@ function initBackgroundStars() {
     }
 }
 
+function resize() {
+    const displayWidth = canvas.clientWidth || 600;
+    const displayHeight = canvas.clientHeight || 400;
+    
+    const oldWidth = canvas.width;
+    const oldHeight = canvas.height;
+    canvas.width = displayWidth;
+    canvas.height = displayHeight;
+    
+    // 按比例调整玩家水平位置
+    if (oldWidth > 0 && oldWidth !== displayWidth) {
+        const ratioX = player.x / oldWidth;
+        player.x = canvas.width * ratioX;
+    } else if (oldWidth === 0) {
+        player.x = canvas.width / 2 - player.width / 2;
+    }
+
+    // 按比例调整玩家垂直位置
+    if (oldHeight > 0 && oldHeight !== displayHeight) {
+        const ratioY = player.y / oldHeight;
+        player.y = canvas.height * ratioY;
+    } else if (oldHeight === 0) {
+        player.y = canvas.height - 40;
+    }
+
+    keepPlayerInBounds();
+    initBackgroundStars();
+}
+
+window.addEventListener('resize', resize);
+player.x = canvas.width / 2 - player.width / 2;
+player.y = canvas.height - 40;
+resize();
+
+// --- 6. 核心逻辑函数 ---
+
 function createStar() {
-    const x = Math.random() * (canvas.width - starRadius * 2) + starRadius;
-    const speed = difficulty.starSpeedMin + Math.random() * (difficulty.starSpeedMax - difficulty.starSpeedMin);
-    const config = modeConfigs[currentGameMode];
-    stars.push({
-        x: x,
-        y: -starRadius * 2,
-        speed: speed,
-        rotation: 0,
-        rotationSpeed: (Math.random() - 0.5) * 0.1,
-        color: config.itemColor,
-        glowColor: config.glowColor,
-        label: config.label
-    });
+    try {
+        const x = Math.random() * (canvas.width - starRadius * 2) + starRadius;
+        const speed = difficulty.starSpeedMin + Math.random() * (difficulty.starSpeedMax - difficulty.starSpeedMin);
+        
+        // 容错处理：确保 config 永远存在
+        const config = modeConfigs[currentGameMode] || modeConfigs.star;
+        
+        stars.push({
+            x: x,
+            y: -starRadius * 2,
+            speed: speed,
+            rotation: 0,
+            rotationSpeed: (Math.random() - 0.5) * 0.1,
+            color: config.itemColor || '#f9d71c',
+            glowColor: config.glowColor || 'rgba(249, 215, 28, 0.4)',
+            label: config.label || '⭐'
+        });
+    } catch (e) {
+        console.error("createStar Error:", e);
+    }
 }
 
 function createParticles(x, y, color) {
