@@ -45,8 +45,9 @@ const mainScoreListElement = document.getElementById('main-score-list');
 const viewLeaderboardBtn = document.getElementById('view-leaderboard-btn');
 const closeLeaderboardBtn = document.getElementById('close-leaderboard-btn');
 const tabButtons = document.querySelectorAll('.tab-btn');
+const backToHomeBtn = document.getElementById('back-to-home-btn');
 
-// 昵称系统相关
+// Supabase 初始化昵称系统相关
 const nameModal = document.getElementById('name-modal');
 const nicknameInput = document.getElementById('nickname-input');
 const saveNameBtn = document.getElementById('save-name-btn');
@@ -462,7 +463,7 @@ async function saveScore(newScore, mode) {
     if (!leaderboardData[mode]) leaderboardData[mode] = [];
     leaderboardData[mode].push(entry);
     leaderboardData[mode].sort((a, b) => b.score - a.score);
-    leaderboardData[mode] = leaderboardData[mode].slice(0, 5);
+    leaderboardData[mode] = leaderboardData[mode].slice(0, 10);
     localStorage.setItem('starGameLeaderboardV2', JSON.stringify(leaderboardData));
 
     // 2. 云端 Supabase 存储
@@ -497,7 +498,7 @@ async function updateLeaderboardUI(targetList, mode) {
                 .select('*')
                 .eq('mode', mode)
                 .order('score', { ascending: false })
-                .limit(5);
+                .limit(10);
             
             const timeoutPromise = new Promise((_, reject) => 
                 setTimeout(() => reject(new Error('Timeout')), 3000)
@@ -647,6 +648,21 @@ restartBtn.addEventListener('click', () => {
     // 这里我们选择直接重新开始当前模式
     restartGame();
 });
+
+// 返回主页按钮逻辑
+if (backToHomeBtn) {
+    backToHomeBtn.addEventListener('click', () => {
+        gameOver = true;
+        cancelAnimationFrame(animationId);
+        overlay.classList.add('hidden');
+        modeOverlay.classList.remove('hidden');
+        // 确保分数和 UI 重置，为下一次开始做准备
+        score = 0;
+        lives = 3;
+        scoreElement.textContent = score;
+        livesElement.textContent = lives;
+    });
+}
 
 // 初始化背景与首帧渲染
 try {
