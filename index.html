@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>接星星游戏</title>
+    <link rel="stylesheet" href="style.css?v=7">
+</head>
+<body>
+    <div id="game-container">
+        <div id="ui">
+            <div id="score-container">
+                <div id="score">0</div>
+                <div id="high-score">最佳: 0</div>
+            </div>
+            <div id="level">等级: 1</div>
+            <div id="lives">3</div>
+        </div>
+        <canvas id="gameCanvas"></canvas>
+        <div id="overlay" class="hidden">
+            <h1 id="overlay-title">游戏结束</h1>
+            <p id="final-score">最终得分: 0</p>
+            <button id="restart-btn">重新开始</button>
+        </div>
+    </div>
+    <script src="game.js?v=7"></script>
+</body>
+</html>

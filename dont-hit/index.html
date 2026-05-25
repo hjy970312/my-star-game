@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>别打我 - 反应力挑战</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="game-container">
+        <div id="header">
+            <div id="score">得分: 0</div>
+            <div id="timer">时间: 30s</div>
+        </div>
+        <div id="game-board">
+            <!-- 9个洞口 -->
+            <div class="hole" id="hole0"></div>
+            <div class="hole" id="hole1"></div>
+            <div class="hole" id="hole2"></div>
+            <div class="hole" id="hole3"></div>
+            <div class="hole" id="hole4"></div>
+            <div class="hole" id="hole5"></div>
+            <div class="hole" id="hole6"></div>
+            <div class="hole" id="hole7"></div>
+            <div class="hole" id="hole8"></div>
+        </div>
+        <div id="overlay">
+            <h1 id="result-title">别打我！</h1>
+            <p id="final-score">点击绿色的，避开红色的</p>
+            <button id="start-btn">开始挑战</button>
+        </div>
+    </div>
+    <script src="game.js"></script>
+</body>
+</html>
