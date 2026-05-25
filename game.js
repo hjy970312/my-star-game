@@ -561,6 +561,14 @@ saveNameBtn.addEventListener('click', () => {
 
 editNameBtn.addEventListener('click', showNameModal);
 
+// 修复手机端点击昵称区域也能触发修改
+document.getElementById('user-info').addEventListener('click', (e) => {
+    // 如果点的是按钮本身，就不重复触发了
+    if (e.target !== editNameBtn) {
+        showNameModal();
+    }
+});
+
 // 初始化时检查是否设置了名字
 if (!playerName) {
     setTimeout(showNameModal, 500);
